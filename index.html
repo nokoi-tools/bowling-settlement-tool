@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
+  <meta name="theme-color" content="#0071e3">
+  <!-- 本番公開時: canonical / og:url を実URLへ変更 -->
+  <link rel="canonical" href="https://nokoi.tools/bowling/">
+  <!-- favicon（実ファイル未配置でもページ動作に影響なし） -->
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+
+  <!-- OGP（本番公開時: og:url / og:image を実URLへ変更） -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ボウリング精算・差額計算ツール｜Nokoi Tools">
+  <meta property="og:description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
+  <meta property="og:url" content="https://nokoi.tools/bowling/">
+  <meta property="og:image" content="https://nokoi.tools/assets/og-bowling.png">
+  <meta property="og:site_name" content="Nokoi Tools">
+
+  <!-- Twitter Card（本番公開時: twitter:image を実URLへ変更） -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ボウリング精算・差額計算ツール｜Nokoi Tools">
+  <meta name="twitter:description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
+  <meta name="twitter:image" content="https://nokoi.tools/assets/og-bowling.png">
+
+  <title>ボウリング精算・差額計算ツール｜Nokoi Tools</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- 構造化データ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ボウリング精算・差額計算ツール",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+    "description": "ボウリング後の差額や精算金額を簡単に計算できる無料の精算支援ツール"
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">メインコンテンツへ</a>
+
+  <div class="container">
+    <header class="header">
+      <p class="site-name">Nokoi Tools</p>
+      <h1 class="tool-title">ボウリング精算・差額計算ツール</h1>
+      <p class="tool-intro">ボウリング終了後の差額や精算金額を簡単に計算できる無料ツールです。友人同士やイベント、サークルなどの精算をスムーズに行えます。</p>
+    </header>
+
+    <!-- ゲーム管理バー -->
+    <div class="game-bar" id="gameBar" role="status" aria-live="polite">
+      <div class="game-badge">
+        <span class="game-badge-label">現在</span>
+        <span class="game-badge-number" id="currentGameDisplay">1</span>
+        <span class="game-badge-unit">ゲーム目</span>
+      </div>
+      <div class="game-bar-actions">
+        <button type="button" class="btn-text" id="prevGameBtn" aria-label="直前のゲームへ">← 前へ</button>
+        <button type="button" class="btn-text" id="historyBtn" aria-label="ゲーム履歴">履歴</button>
+      </div>
+      <p class="game-hint" id="gameHint">スコアを入力して「精算を計算する」を押してください</p>
+    </div>
+
+    <div id="statusMessage" class="status-message" role="alert" aria-live="assertive" hidden></div>
+
+    <main id="main">
+      <!-- 人数 -->
+      <section class="section section-essential" aria-labelledby="section-players-count">
+        <h2 class="section-title" id="section-players-count">人数</h2>
+        <div class="counter-field">
+          <button type="button" class="counter-btn" id="playerCountDown" aria-label="人数を減らす">−</button>
+          <input type="number" id="playerCount" class="input counter-input" value="4" min="2" max="20" inputmode="numeric" aria-label="参加人数">
+          <button type="button" class="counter-btn" id="playerCountUp" aria-label="人数を増やす">＋</button>
+          <span class="counter-unit">人</span>
+        </div>
+      </section>
+
+      <!-- プレイヤー -->
+      <section class="section section-essential" aria-labelledby="section-players">
+        <h2 class="section-title" id="section-players">プレイヤー</h2>
+        <div class="player-list-header" aria-hidden="true">
+          <span></span><span>名前</span><span>今回</span><span>累計</span>
+        </div>
+        <div class="player-list" id="playerList"></div>
+      </section>
+
+      <!-- チーム -->
+      <section class="section section-essential" aria-labelledby="section-teams">
+        <h2 class="section-title" id="section-teams">チーム</h2>
+        <div class="field">
+          <label class="field-label" for="teamCount">チーム数</label>
+          <div class="counter-field counter-field-inline">
+            <button type="button" class="counter-btn" id="teamCountDown" aria-label="チーム数を減らす">−</button>
+            <input type="number" id="teamCount" class="input counter-input" value="2" min="2" inputmode="numeric" aria-label="チーム数">
+            <button type="button" class="counter-btn" id="teamCountUp" aria-label="チーム数を増やす">＋</button>
+            <span class="counter-unit">チーム</span>
+          </div>
+        </div>
+        <div id="teamWarning" class="warning-banner" hidden role="alert"></div>
+        <div class="team-names" id="teamNames"></div>
+        <div class="team-legend" id="teamLegend" aria-label="チームカラー凡例"></div>
+        <p class="section-hint">各プレイヤーの所属チームを選んでください</p>
+        <div class="team-list" id="teamList"></div>
+      </section>
+
+      <!-- 精算対象 -->
+      <section class="section section-essential" aria-labelledby="section-scope">
+        <h2 class="section-title" id="section-scope">精算対象</h2>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="scoreScope" value="current" checked>
+            <span>今回のゲームのみ</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="scoreScope" value="cumulative">
+            <span>累計スコア</span>
+          </label>
+        </div>
+        <div class="field field-nested" id="cumulativeOptions">
+          <label class="checkbox-label">
+            <input type="checkbox" id="includeCurrentGame" checked>
+            <span>累計に現在入力中のゲームも含める</span>
+          </label>
+          <p class="section-hint" id="cumulativeHint">終了済み <span id="completedGamesCount">0</span> ゲーム分の累計</p>
+        </div>
+      </section>
+
+      <!-- 詳細設定（アコーディオン） -->
+      <details class="accordion section-accordion" id="detailsSettings">
+        <summary class="accordion-summary">詳細設定（計算方式・精算ルール・金額）</summary>
+        <div class="accordion-body">
+          <section class="section-inner" aria-labelledby="section-calc">
+            <h3 class="section-title" id="section-calc">計算方式</h3>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="calcMethod" value="total" checked>
+                <span>チーム合計点数差</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="calcMethod" value="average">
+                <span>チーム平均点差（合計 ÷ 人数）</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="section-inner" id="settlementSection" aria-labelledby="section-settlement">
+            <h3 class="section-title" id="section-settlement">精算ルール</h3>
+            <div class="preset-group" id="presetGroup" role="group" aria-label="精算プリセット">
+              <button type="button" class="preset-btn" data-preset="first-last">1位⇔最下位</button>
+              <button type="button" class="preset-btn" data-preset="half-half">上位半分⇔下位半分</button>
+              <button type="button" class="preset-btn" data-preset="sequential">順位順</button>
+              <button type="button" class="preset-btn active" data-preset="custom">カスタム</button>
+            </div>
+            <div id="settlementCustom" class="settlement-custom">
+              <p class="section-hint">下位 → 上位（同順位の場合はチームを指定）</p>
+              <div class="settlement-list" id="settlementList"></div>
+              <button type="button" class="btn-add" id="addSettlementPair">＋ ペアを追加</button>
+            </div>
+          </section>
+
+          <section class="section-inner" aria-labelledby="section-price">
+            <h3 class="section-title" id="section-price">金額設定</h3>
+            <div class="field">
+              <label class="field-label" for="pricePerPin">1ピンあたりの金額（精算単価・円）</label>
+              <input type="number" id="pricePerPin" class="input input-large" value="100" min="1" inputmode="numeric">
+            </div>
+            <div class="field">
+              <span class="field-label" id="label-rounding">端数処理（送金最適化の前）</span>
+              <div class="radio-group" role="radiogroup" aria-labelledby="label-rounding">
+                <label class="radio-label">
+                  <input type="radio" name="rounding" value="none" checked>
+                  <span>なし</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="rounding" value="100">
+                  <span>100円未満切り捨て</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="rounding" value="1000">
+                  <span>1,000円未満切り捨て</span>
+                </label>
+              </div>
+            </div>
+            <div class="field" id="remainderField">
+              <span class="field-label" id="label-remainder">端数余りの調整</span>
+              <div class="radio-group" role="radiogroup" aria-labelledby="label-remainder">
+                <label class="radio-label">
+                  <input type="radio" name="remainderAdjust" value="representative" checked>
+                  <span>指定した代表者へ寄せる</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="remainderAdjust" value="winner">
+                  <span>受取側へ均等配分</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="remainderAdjust" value="loser">
+                  <span>支払側へ均等配分</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="remainderAdjust" value="none">
+                  <span>端数を精算しない</span>
+                </label>
+              </div>
+              <div class="field field-nested" id="representativeField">
+                <label class="field-label" for="remainderRep">代表者（プレイヤー）</label>
+                <select id="remainderRep" class="input select-input" aria-label="端数調整の代表者"></select>
+              </div>
+            </div>
+          </section>
+        </div>
+      </details>
+
+      <!-- 結果 -->
+      <section class="section result-section" id="resultSection" hidden aria-labelledby="section-result">
+        <h2 class="section-title" id="section-result">精算結果</h2>
+        <p class="result-scope-label" id="resultScopeLabel"></p>
+        <div id="resultWarnings" class="warning-banner" hidden role="alert"></div>
+
+        <div class="result-block">
+          <h3 class="result-block-title">順位</h3>
+          <div id="rankingTable"></div>
+        </div>
+        <div class="result-block">
+          <h3 class="result-block-title">差額計算</h3>
+          <div id="teamSummary"></div>
+        </div>
+        <div class="result-summary" id="settlementSummary"></div>
+        <div class="payment-block">
+          <h3 class="payment-title">送金結果</h3>
+          <p class="section-hint payment-hint">支払い内訳（誰が誰へいくら送金するか）</p>
+          <ul class="payment-list" id="paymentList"></ul>
+        </div>
+        <div class="result-actions">
+          <button type="button" class="btn-secondary" id="copyBtn">結果をコピー</button>
+          <button type="button" class="btn-line" id="shareBtn">共有（LINE等）</button>
+          <button type="button" class="btn-next-game" id="nextGameBtn">次のゲームへ</button>
+          <button type="button" class="btn-text btn-danger" id="deleteCurrentGameBtn">現在のゲームを削除</button>
+        </div>
+        <p class="copy-feedback" id="copyFeedback" hidden role="status">結果をコピーしました</p>
+      </section>
+    </main>
+
+    <!-- 履歴モーダル -->
+    <dialog class="modal" id="historyModal" aria-labelledby="historyModalTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="historyModalTitle">ゲーム履歴</h2>
+          <button type="button" class="modal-close" id="historyModalClose" aria-label="閉じる">×</button>
+        </div>
+        <div class="modal-body" id="historyList"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-text btn-danger" id="resetHistoryBtn">すべての履歴をリセット</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- 履歴詳細モーダル -->
+    <dialog class="modal" id="historyDetailModal" aria-labelledby="historyDetailTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="historyDetailTitle">ゲーム詳細</h2>
+          <button type="button" class="modal-close" id="historyDetailClose" aria-label="閉じる">×</button>
+        </div>
+        <div class="modal-body" id="historyDetailBody"></div>
+      </div>
+    </dialog>
+
+    <!-- 固定計算ボタン -->
+    <div class="fixed-bar" id="fixedBar">
+      <button type="button" class="btn-primary btn-calculate-fixed" id="calculateBtn" aria-label="差額・精算を計算する">
+        精算を計算する
+      </button>
+    </div>
+
+    <!-- ページ下部：説明・FAQ -->
+    <aside class="info-section" aria-labelledby="info-heading">
+      <h2 id="info-heading" class="info-heading">使い方</h2>
+      <ol class="info-list">
+        <li>人数とプレイヤー名・スコアを入力します</li>
+        <li>チーム分けと精算ルールを設定します</li>
+        <li>「精算を計算する」で精算結果と送金結果を表示します</li>
+        <li>「次のゲームへ」で累計を更新し次のゲームに進みます</li>
+      </ol>
+
+      <h2 class="info-heading">よくある質問</h2>
+      <dl class="faq-list">
+        <dt>ボウリング以外でも使えますか？</dt>
+        <dd>スコアや点数差に基づく精算であれば、イベントやサークルなどでもご利用いただけます。</dd>
+        <dt>データは保存されますか？</dt>
+        <dd>ブラウザのLocalStorageに自動保存されます。端末やブラウザを変えると引き継がれません。</dd>
+        <dt>同点の場合は？</dt>
+        <dd>「1位タイ」のように表示し、同順位チーム間の差額は0円として計算します。</dd>
+        <dt>共有機能が動かない場合は？</dt>
+        <dd>file:// では制限があります。HTTPSで公開後、Web Share API / コピーが完全に動作します。</dd>
+      </dl>
+
+      <h2 class="info-heading">免責事項</h2>
+      <p class="info-text">本ツールは計算を補助するためのサービスです。表示される精算結果・送金結果は参考値であり、最終的な精算内容や利用方法については、利用者同士でご確認ください。</p>
+
+      <nav class="info-links" aria-label="関連リンク">
+        <a href="privacy.html" class="info-link">プライバシーポリシー</a>
+        <a href="terms.html" class="info-link">利用規約</a>
+        <button type="button" class="info-link info-link-btn" id="resetAllBtn">全データをリセット</button>
+      </nav>
+    </aside>
+
+    <!-- 公開前チェック（?debug=1 のときのみ script.js が表示） -->
+    <div id="debugPanel" hidden></div>
+
+    <footer class="footer">
+      <p>&copy; Nokoi Tools</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
