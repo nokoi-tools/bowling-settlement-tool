@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
   <meta name="theme-color" content="#0071e3">
-  <!-- 本番公開時: canonical / og:url を実URLへ変更 -->
   <link rel="canonical" href="https://nokoi.tools/bowling/">
-  <!-- favicon（実ファイル未配置でもページ動作に影響なし） -->
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
 
-  <!-- OGP（本番公開時: og:url / og:image を実URLへ変更） -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="ボウリング精算・差額計算ツール｜Nokoi Tools">
   <meta property="og:description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
@@ -18,7 +15,6 @@
   <meta property="og:image" content="https://nokoi.tools/assets/og-bowling.png">
   <meta property="og:site_name" content="Nokoi Tools">
 
-  <!-- Twitter Card（本番公開時: twitter:image を実URLへ変更） -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ボウリング精算・差額計算ツール｜Nokoi Tools">
   <meta name="twitter:description" content="ボウリング後の差額や精算金額を簡単に計算できる無料ツール。人数変更、チーム戦、複数ゲーム、履歴保存にも対応。">
@@ -27,7 +23,6 @@
   <title>ボウリング精算・差額計算ツール｜Nokoi Tools</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- 構造化データ -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -50,7 +45,6 @@
       <p class="tool-intro">ボウリング終了後の差額や精算金額を簡単に計算できる無料ツールです。友人同士やイベント、サークルなどの精算をスムーズに行えます。</p>
     </header>
 
-    <!-- ゲーム管理バー -->
     <div class="game-bar" id="gameBar" role="status" aria-live="polite">
       <div class="game-badge">
         <span class="game-badge-label">現在</span>
@@ -60,6 +54,7 @@
       <div class="game-bar-actions">
         <button type="button" class="btn-text" id="prevGameBtn" aria-label="直前のゲームへ">← 前へ</button>
         <button type="button" class="btn-text" id="historyBtn" aria-label="ゲーム履歴">履歴</button>
+        <button type="button" class="btn-text" id="endSessionBtn" aria-label="今日の精算を終了">今日の精算を終了</button>
       </div>
       <p class="game-hint" id="gameHint">スコアを入力して「精算を計算する」を押してください</p>
     </div>
@@ -67,7 +62,6 @@
     <div id="statusMessage" class="status-message" role="alert" aria-live="assertive" hidden></div>
 
     <main id="main">
-      <!-- 人数 -->
       <section class="section section-essential" aria-labelledby="section-players-count">
         <h2 class="section-title" id="section-players-count">人数</h2>
         <div class="counter-field">
@@ -78,16 +72,15 @@
         </div>
       </section>
 
-      <!-- プレイヤー -->
       <section class="section section-essential" aria-labelledby="section-players">
         <h2 class="section-title" id="section-players">プレイヤー</h2>
+        <p class="section-hint">累計・平均は表示用です。精算は常に今回のスコアのみ対象です。</p>
         <div class="player-list-header" aria-hidden="true">
-          <span></span><span>名前</span><span>今回</span><span>累計</span>
+          <span></span><span>名前</span><span>今回</span><span>累計</span><span>平均</span>
         </div>
         <div class="player-list" id="playerList"></div>
       </section>
 
-      <!-- チーム -->
       <section class="section section-essential" aria-labelledby="section-teams">
         <h2 class="section-title" id="section-teams">チーム</h2>
         <div class="field">
@@ -102,33 +95,10 @@
         <div id="teamWarning" class="warning-banner" hidden role="alert"></div>
         <div class="team-names" id="teamNames"></div>
         <div class="team-legend" id="teamLegend" aria-label="チームカラー凡例"></div>
-        <p class="section-hint">各プレイヤーの所属チームを選んでください</p>
+        <p class="section-hint">各プレイヤーの所属チームを選んでください。チーム名は自動生成されます（手動編集も可能）。</p>
         <div class="team-list" id="teamList"></div>
       </section>
 
-      <!-- 精算対象 -->
-      <section class="section section-essential" aria-labelledby="section-scope">
-        <h2 class="section-title" id="section-scope">精算対象</h2>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input type="radio" name="scoreScope" value="current" checked>
-            <span>今回のゲームのみ</span>
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="scoreScope" value="cumulative">
-            <span>累計スコア</span>
-          </label>
-        </div>
-        <div class="field field-nested" id="cumulativeOptions">
-          <label class="checkbox-label">
-            <input type="checkbox" id="includeCurrentGame" checked>
-            <span>累計に現在入力中のゲームも含める</span>
-          </label>
-          <p class="section-hint" id="cumulativeHint">終了済み <span id="completedGamesCount">0</span> ゲーム分の累計</p>
-        </div>
-      </section>
-
-      <!-- 詳細設定（アコーディオン） -->
       <details class="accordion section-accordion" id="detailsSettings">
         <summary class="accordion-summary">詳細設定（計算方式・精算ルール・金額）</summary>
         <div class="accordion-body">
@@ -167,7 +137,7 @@
               <label class="field-label" for="pricePerPin">1ピンあたりの金額（精算単価・円）</label>
               <input type="number" id="pricePerPin" class="input input-large" value="100" min="1" inputmode="numeric">
             </div>
-            <div class="field">
+            <div class="field" id="remainderField">
               <span class="field-label" id="label-rounding">端数処理（送金最適化の前）</span>
               <div class="radio-group" role="radiogroup" aria-labelledby="label-rounding">
                 <label class="radio-label">
@@ -184,7 +154,7 @@
                 </label>
               </div>
             </div>
-            <div class="field" id="remainderField">
+            <div class="field">
               <span class="field-label" id="label-remainder">端数余りの調整</span>
               <div class="radio-group" role="radiogroup" aria-labelledby="label-remainder">
                 <label class="radio-label">
@@ -210,10 +180,32 @@
               </div>
             </div>
           </section>
+
+          <section class="section-inner" aria-labelledby="section-roulette">
+            <h3 class="section-title" id="section-roulette">単価ルーレット</h3>
+            <p class="section-hint">重み付きランダムで精算単価を決定できます。手動入力も引き続き利用可能です。</p>
+            <div class="roulette-preset-tabs" id="roulettePresetTabs" role="tablist" aria-label="ルーレットプリセット"></div>
+            <div class="field">
+              <label class="field-label" for="roulettePresetName">プリセット名</label>
+              <input type="text" id="roulettePresetName" class="input" maxlength="32" aria-label="プリセット名">
+            </div>
+            <div class="roulette-display-wrap">
+              <p class="roulette-result-label">今回のレート</p>
+              <div class="roulette-display" id="rouletteDisplay" aria-live="polite">1ピン＝100円</div>
+              <button type="button" class="btn-secondary roulette-spin-btn" id="rouletteSpinBtn">ルーレットを回す</button>
+            </div>
+            <div class="roulette-options-header">
+              <span>金額（円）</span>
+              <span>重み</span>
+              <span></span>
+            </div>
+            <div class="roulette-options-list" id="rouletteOptionsList"></div>
+            <button type="button" class="btn-add" id="rouletteAddOption">＋ オプションを追加</button>
+            <div class="roulette-probabilities" id="rouletteProbabilities" aria-label="出現確率"></div>
+          </section>
         </div>
       </details>
 
-      <!-- 結果 -->
       <section class="section result-section" id="resultSection" hidden aria-labelledby="section-result">
         <h2 class="section-title" id="section-result">精算結果</h2>
         <p class="result-scope-label" id="resultScopeLabel"></p>
@@ -228,6 +220,7 @@
           <div id="teamSummary"></div>
         </div>
         <div class="result-summary" id="settlementSummary"></div>
+        <div class="result-block" id="balanceDisplay"></div>
         <div class="payment-block">
           <h3 class="payment-title">送金結果</h3>
           <p class="section-hint payment-hint">支払い内訳（誰が誰へいくら送金するか）</p>
@@ -243,7 +236,6 @@
       </section>
     </main>
 
-    <!-- 履歴モーダル -->
     <dialog class="modal" id="historyModal" aria-labelledby="historyModalTitle">
       <div class="modal-content">
         <div class="modal-header">
@@ -257,7 +249,6 @@
       </div>
     </dialog>
 
-    <!-- 履歴詳細モーダル -->
     <dialog class="modal" id="historyDetailModal" aria-labelledby="historyDetailTitle">
       <div class="modal-content">
         <div class="modal-header">
@@ -268,14 +259,38 @@
       </div>
     </dialog>
 
-    <!-- 固定計算ボタン -->
+    <dialog class="modal" id="sessionSummaryModal" aria-labelledby="sessionSummaryTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="sessionSummaryTitle">今日の精算サマリー</h2>
+          <button type="button" class="modal-close" id="sessionSummaryClose" aria-label="閉じる">×</button>
+        </div>
+        <div class="modal-body" id="sessionSummaryBody"></div>
+      </div>
+    </dialog>
+
+    <dialog class="modal modal-compact" id="rateChoiceModal" aria-labelledby="rateChoiceTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="rateChoiceTitle">次のゲームの単価</h2>
+          <button type="button" class="modal-close" id="rateChoiceClose" aria-label="閉じる">×</button>
+        </div>
+        <div class="modal-body rate-choice-body">
+          <p class="rate-choice-text">次のゲームの精算単価を選んでください。</p>
+          <div class="rate-choice-actions">
+            <button type="button" class="btn-secondary" id="rateChoiceReuse">前回の単価を使う（<span id="rateChoiceLastValue">100円</span>）</button>
+            <button type="button" class="btn-primary" id="rateChoiceSpin">ルーレットで決める</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
     <div class="fixed-bar" id="fixedBar">
       <button type="button" class="btn-primary btn-calculate-fixed" id="calculateBtn" aria-label="差額・精算を計算する">
         精算を計算する
       </button>
     </div>
 
-    <!-- ページ下部：説明・FAQ -->
     <aside class="info-section" aria-labelledby="info-heading">
       <h2 id="info-heading" class="info-heading">使い方</h2>
       <ol class="info-list">
@@ -283,18 +298,19 @@
         <li>チーム分けと精算ルールを設定します</li>
         <li>「精算を計算する」で精算結果と送金結果を表示します</li>
         <li>「次のゲームへ」で累計を更新し次のゲームに進みます</li>
+        <li>「今日の精算を終了」で本日のサマリーを確認できます</li>
       </ol>
 
       <h2 class="info-heading">よくある質問</h2>
       <dl class="faq-list">
-        <dt>ボウリング以外でも使えますか？</dt>
-        <dd>スコアや点数差に基づく精算であれば、イベントやサークルなどでもご利用いただけます。</dd>
+        <dt>精算は累計スコアでもできますか？</dt>
+        <dd>精算は常に今回のゲームスコアのみが対象です。累計・平均は表示用の参考値です。</dd>
         <dt>データは保存されますか？</dt>
         <dd>ブラウザのLocalStorageに自動保存されます。端末やブラウザを変えると引き継がれません。</dd>
         <dt>同点の場合は？</dt>
         <dd>「1位タイ」のように表示し、同順位チーム間の差額は0円として計算します。</dd>
-        <dt>共有機能が動かない場合は？</dt>
-        <dd>file:// では制限があります。HTTPSで公開後、Web Share API / コピーが完全に動作します。</dd>
+        <dt>単価ルーレットとは？</dt>
+        <dd>重み付きランダムで1ピンあたりの金額を決定する機能です。手動入力も利用できます。</dd>
       </dl>
 
       <h2 class="info-heading">免責事項</h2>
@@ -307,7 +323,6 @@
       </nav>
     </aside>
 
-    <!-- 公開前チェック（?debug=1 のときのみ script.js が表示） -->
     <div id="debugPanel" hidden></div>
 
     <footer class="footer">
@@ -315,6 +330,11 @@
     </footer>
   </div>
 
+  <script src="storage.js"></script>
+  <script src="calculate.js"></script>
+  <script src="roulette.js"></script>
+  <script src="history.js"></script>
+  <script src="ui.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
