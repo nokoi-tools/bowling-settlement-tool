@@ -31,12 +31,13 @@
 
   // ========================================
   // 状態（単一オブジェクト）
+  // idCounter は createDefaultState() → genId() より先に初期化する
   // ========================================
+  let idCounter = 0;
   let state = createDefaultState();
   let lastResultText = "";
   let isCalculating = false;
   let saveTimer = null;
-  let idCounter = 0;
 
   // ========================================
   // DOM（null安全）
